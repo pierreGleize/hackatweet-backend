@@ -39,11 +39,17 @@ router.post("/searchTweet", async (req, res) => {
     return;
   }
   const user = await User.findOne({ token: token });
+  if (!user) {
+    res.json({ result: false, error: "User not found" });
+    return;
+  }
   const user_Id = user._id;
 
   const tweets = await Tweet.find({
     user: user_Id,
-    message: { $regex: message, $options: "i" },
+    message: message,
+    // SI JE VEUX CHERCHER TOUS LES MESSAGES QUI CONTIENNENT LE MOT  DANS "MESSAGE"
+    // message: { $regex: message, $options: "i" },
   });
 
   //   Si aucun tweet correspond à la recherche retourne []
@@ -110,7 +116,12 @@ router.post("/unlikeTweet", async (req, res) => {
     return;
   }
   const user = await User.findOne({ token: token });
+  if (!user) {
+    res.json({ result: false, error: "User not found" });
+    return;
+  }
   const user_id = user._id;
+  //   const tweet = await Tweet.findOne({ _id: tweetId });
   const tweet = await Tweet.findById(tweetId);
 
   if (!tweet) {
@@ -122,9 +133,13 @@ router.post("/unlikeTweet", async (req, res) => {
     return;
   }
   // Retirer l'utilisateur du tableau "like" du tweet
-  tweet.like = tweet.like.filter((id) => id.toString() !== user_id);
+  //   tweet.like = tweet.like.filter((id) => id !== user_id);
+  tweet.like = tweet.like.filter((id) => id.toString() !== user_id.toString());
 
-  tweet.save().then((tweet) => res.json({ result: true, tweet }));
+  await tweet.save();
+  console.log(tweet);
+
+  res.json({ result: true, tweet });
 });
 
 //OBTENIN TOUS LES TWEETS
