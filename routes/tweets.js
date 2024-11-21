@@ -147,7 +147,7 @@ router.get("/", (req, res) => {
   Tweet.find()
     .populate("user")
     .then((tweets) => {
-      res.json({ tweets });
+      res.json({ result: true, tweets });
     });
 });
 
