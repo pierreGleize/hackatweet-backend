@@ -26,7 +26,11 @@ router.post("/postTweet", async (req, res) => {
     user: user_Id,
   });
   newTweet.save().then(() => {
-    res.json({ result: true, tweet: newTweet });
+    Tweet.findById(newTweet._id)
+      .populate("user")
+      .then((data) => {
+        res.json({ result: true, newTweet: data });
+      });
   });
 });
 
@@ -61,7 +65,7 @@ router.post("/searchTweet", async (req, res) => {
 });
 
 //SUPPRIMER UN TWEET
-router.delete("/:token/:tweetId", async (req, res) => {
+router.delete("/deleteTweet/:token/:tweetId", async (req, res) => {
   const { token, tweetId } = req.params;
 
   const user = await User.findOne({ token: token });
@@ -137,8 +141,6 @@ router.post("/unlikeTweet", async (req, res) => {
   tweet.like = tweet.like.filter((id) => id.toString() !== user_id.toString());
 
   await tweet.save();
-  console.log(tweet);
-
   res.json({ result: true, tweet });
 });
 
