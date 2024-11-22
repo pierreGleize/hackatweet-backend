@@ -36,20 +36,19 @@ router.post("/postTweet", async (req, res) => {
 
 // CHERCHER UN TWEET
 router.post("/searchTweet", async (req, res) => {
-  const hashtagToSearch = req.body.hashtag
-  let result = []
+  const hashtagToSearch = req.body.hashtag;
+  let result = [];
   Tweet.find({})
-  .populate("user")
-  .then(data => {
-    for (let article of data){
-      if(article.message.includes(hashtagToSearch)){
-        result.push(article)
+    .populate("user")
+    .then((data) => {
+      for (let article of data) {
+        if (article.message.includes(hashtagToSearch)) {
+          result.push(article);
+        }
       }
-    }
-    res.json({result : result})
-  })
+      res.json({ result: result });
+    });
 });
-
 
 //SUPPRIMER UN TWEET
 router.delete("/deleteTweet/:token/:tweetId", async (req, res) => {
@@ -95,7 +94,7 @@ router.post("/likeTweet", async (req, res) => {
     return;
   }
   // Ajouter l'utilisateur au tableau "like" du tweet
-  tweet.like.push(user_id);
+  tweet.like.push(user._id);
   tweet.save().then((tweet) => res.json({ result: true, tweet }));
 });
 
@@ -142,51 +141,47 @@ router.get("/", (req, res) => {
 
 // OBTENIR TOUT LES HASHTAGS
 
-router.get('/hashtags', (req,res) => {
-  Tweet.find({})
-  .then(data => {
-    let messagesTab = []
-    let hashtagsUsed = []
-    let result = []
+router.get("/hashtags", (req, res) => {
+  Tweet.find({}).then((data) => {
+    let messagesTab = [];
+    let hashtagsUsed = [];
+    let result = [];
     // Récupère tout les messages des tweets et les met dans un tableau
-    for (let tweet of data){
-      messagesTab.push(tweet.message)
+    for (let tweet of data) {
+      messagesTab.push(tweet.message);
     }
     // Boucle sur chaque message pour rechercher les hashtags à l'intérieur
-    for (let message of messagesTab){
+    for (let message of messagesTab) {
       // Pour chaque hashtags trouvé, les mets dans un tableau hashtags
-      let hashtags = message.match(/#\w+/g)
+      let hashtags = message.match(/#\w+/g);
       // Ajouter tous les hashtags utilisés dans un tableau hashtagsUsed en gérant les doublons
-      if (hashtags){
-        for (let hashtag of hashtags){
-          if (!hashtagsUsed.includes(hashtag)){
-            hashtagsUsed.push(hashtag)
+      if (hashtags) {
+        for (let hashtag of hashtags) {
+          if (!hashtagsUsed.includes(hashtag)) {
+            hashtagsUsed.push(hashtag);
           }
         }
       }
     }
     // Pour chaque hashtag recherché combien de tweet l'ont utilisé
-    for (let hashtag of hashtagsUsed){
-      for (let message of messagesTab){
-        if (message.includes(hashtag)){
-          let existingHashtag = result.find(obj => obj.hashtag === hashtag);
-          if (existingHashtag){
-            existingHashtag.count +=1
+    for (let hashtag of hashtagsUsed) {
+      for (let message of messagesTab) {
+        if (message.includes(hashtag)) {
+          let existingHashtag = result.find((obj) => obj.hashtag === hashtag);
+          if (existingHashtag) {
+            existingHashtag.count += 1;
           } else {
-            result.push({hashtag: hashtag, count: 1})
+            result.push({ hashtag: hashtag, count: 1 });
           }
         }
       }
     }
     // Tri des hashtags selon leur nombre d'utilisation du plus petit au plus grand
     result = result.sort((a, b) => b.count - a.count);
-    // Envoi des 5 premiers résultats 
-    result = result.slice(0, 5)
-    res.json({result:result})
-  })
-
-})
-
-
+    // Envoi des 5 premiers résultats
+    result = result.slice(0, 5);
+    res.json({ result: result });
+  });
+});
 
 module.exports = router;
