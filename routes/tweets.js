@@ -3,8 +3,6 @@ var router = express.Router();
 const Tweet = require("../models/tweet");
 const User = require("../models/users");
 
-/* GET users listing. */
-
 // POSTER UN TWEET
 router.post("/postTweet", async (req, res) => {
   const { message, token } = req.body;
